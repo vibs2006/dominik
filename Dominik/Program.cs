@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Principal;
 using System.Threading;
+using System.Security.Permissions;
 
 namespace Dominik
 {
@@ -52,14 +53,21 @@ namespace Dominik
         {
             var identity = new GenericIdentity("bob");
 
-            string[] roles = new string[] {"admin"};
+            string[] roles = new string[] { "admin" };
 
             var genericprinciple = new GenericPrincipal(identity, roles);
 
             Thread.CurrentPrincipal = genericprinciple;
 
         }
-         
+        //Error must be handled
+        [PrincipalPermission(SecurityAction.Demand, Role = "Admin")]
+        [PrincipalPermission(SecurityAction.Demand, Role = "Developer")] //You can use multiple roles like this
+        private static void AdminSpecificTask()
+        {
+            write("Admin Specific Task performed");
+        }
+
         private static void UsePrincipal()
         {
             var principle = Thread.CurrentPrincipal;
@@ -67,6 +75,21 @@ namespace Dominik
             write(principle.Identity.Name);
             write(principle.Identity.IsAuthenticated.ToString());
             write(principle.IsInRole("admin").ToString());
+
+            //Three approaches for a deciding ona  role type. 
+
+            //Approach 1
+            if (principle.IsInRole("admin"))
+            {
+                write("Role is Admin");
+            }
+
+            //If this fails then it'll raise exception and you need to catch that
+            new PrincipalPermission(null, "Admin").Demand();
+            write("Role passed principle permission so must be fine");
+
+            //Third Aproach
+            AdminSpecificTask();
         }
     }
 }
