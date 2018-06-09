@@ -22,6 +22,12 @@ namespace Dominik
             var sid = account.Translate(typeof(SecurityIdentifier));
             write(sid.Value); //Another way to fetch SID
 
+            write("Groups (SIDs) - (Their Name Transaction Account)");
+            foreach(var group in identity.Groups)
+            {
+                write($"({group.Value}) - ({group.Translate(typeof(NTAccount))})");
+            }
+
             Console.ReadLine();
         }
 
